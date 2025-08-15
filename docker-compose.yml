@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15
+    container_name: artgallery-db
+    environment:
+      POSTGRES_USER: artgallery
+      POSTGRES_PASSWORD: artgallery
+      POSTGRES_DB: artgallery_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./BackendTest
+      dockerfile: Dockerfile
+    container_name: artgallery-backend
+    depends_on:
+      - db
+    env_file:
+      - ./BackendTest/.env
+    volumes:
+      - ./BackendTest/static:/app/static
+      - ./BackendTest/uploads:/app/uploads
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./Frontend_main
+      dockerfile: Dockerfile
+    container_name: artgallery-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
